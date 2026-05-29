@@ -2,64 +2,72 @@ pipeline {
     agent any
 
     tools {
-        // 这里的 'maven' 和 'jdk21' 必须与你在 Jenkins 全局工具配置中的名称一致
-        maven 'maven3' 
-        jdk 'jdk21' 
+        // 确保这里的 'maven' 和 'jdk' 名称与你在 Jenkins 全局工具配置中的名称一致
+        maven 'maven3'
+        jdk 'jdk21'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // 从 SCM (Git) 检出代码
+                // 从 GitHub 拉取代码
                 checkout scm
             }
         }
 
-        stage('Build & PMD Check') {
+        stage('Build') {
             steps {
-                // 执行 Maven 编译，跳过测试（测试在下一阶段单独运行），并运行 PMD 代码检查
-                sh 'mvn clean compile pmd:pmd pmd:cpd -DskipTests'
+                // Windows 下使用 bat 执行 Maven 打包命令
+                bat 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Unit Tests') {
+        stage('Test') {
             steps {
-                // 运行单元测试
-                sh 'mvn test'
+                // Windows 下执行测试
+                bat 'mvn test'
             }
             post {
                 always {
-                    // 收集并展示测试报告
-                    junit '**/target/surefire-reports/TEST-*.xml'
+                    // 归档测试报告，注意 Windows 路径使用双反斜杠
+                    junit '**\\target\\surefire-reports\\*.xml'
                 }
             }
         }
 
-        stage('Generate JavaDoc') {
+        stage('Archive') {
             steps {
-                // 生成 JavaDoc 文档
-                sh 'mvn javadoc:javadoc'
+                // 归档打包好的 JAR 文件
+                archiveArtifacts artifacts: '**\\target\\*.jar', fingerprint: true
             }
         }
 
-        stage('Package') {
+        // 暂时注释掉 PMD 静态代码分析，等安装好插件后再启用
+        /*
+        stage('PMD Analysis') {
             steps {
-                // 打包生成可执行文件 (Jar/War)
-                sh 'mvn package -DskipTests'
+                bat 'mvn pmd:pmd'
+            }
+            post {
+                always {
+                    // 记录 PMD 警告
+                    recordIssues tools: [pmdParser(pattern: '**\\target\\pmd.xml')]
+                }
             }
         }
+        */
     }
 
     post {
         always {
-            // 归档构建产物 (Jar/War)
-            archiveArtifacts artifacts: '**/target/*.jar, **/target/*.war', fingerprint: true
-            
-            // 归档 PMD 报告 (需要安装 PMD 插件)
-            pmd canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '**/target/pmd.xml', unHealthy: ''
-            
-            // 归档 JavaDoc
-            archiveArtifacts artifacts: '**/target/site/apidocs/**', allowEmptyArchive: true
+            // 构建结束后清理工作空间
+            cleanWs()
+        }
+        success {
+            echo '构建成功！'
+        }
+        failure {
+            echo '构建失败！'
         }
     }
 }

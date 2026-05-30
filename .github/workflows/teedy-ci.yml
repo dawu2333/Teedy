@@ -1,0 +1,56 @@
+name: Teedy CI Pipeline
+
+# 触发条件：当有代码推送到任意分支，或创建 Pull Request 时触发
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  build-and-test:
+    # 运行环境：使用最新的 Ubuntu 虚拟机
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 设置 JDK 21 环境
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven # 开启 Maven 依赖缓存，加快构建速度
+
+      # 3. 执行 Maven 构建、PMD检查、JavaDoc生成和单元测试
+      # 对应 Jenkinsfile 中合并后的那条核心命令
+      - name: Build, PMD, JavaDoc and Test with Maven
+        run: mvn clean package pmd:pmd javadoc:javadoc test -Ddoclint=none -B
+
+      # 4. 上传构建产物（对应作业要求的可执行文件 jar/war）
+      - name: Upload Build Artifacts (JAR/WAR)
+        uses: actions/upload-artifact@v4
+        with:
+          name: teedy-executables
+          path: |
+            **/target/*.jar
+            **/target/*.war
+
+      # 5. 归档测试报告（对应作业要求的测试报告）
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: always() # 即使测试失败也上传报告
+        with:
+          name: teedy-test-reports
+          path: '**/target/surefire-reports/*.xml'
+
+      # 6. 归档 JavaDoc 文档（对应作业要求的 JavaDoc 文档）
+      - name: Upload JavaDoc
+        uses: actions/upload-artifact@v4
+        if: success() # 只有构建成功才上传文档
+        with:
+          name: teedy-javadoc
+          path: '**/target/site/apidocs/**'

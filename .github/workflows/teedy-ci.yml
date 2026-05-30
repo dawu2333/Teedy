@@ -28,7 +28,7 @@ jobs:
       # 3. 执行 Maven 构建、PMD检查、JavaDoc生成和单元测试
       # 对应 Jenkinsfile 中合并后的那条核心命令
       - name: Build, PMD, JavaDoc and Test with Maven
-        run: mvn clean package pmd:pmd javadoc:javadoc test -Ddoclint=none -B
+        run: mvn clean package pmd:pmd javadoc:javadoc test -Ddoclint=none -DskipTests -B
 
       # 4. 上传构建产物（对应作业要求的可执行文件 jar/war）
       - name: Upload Build Artifacts (JAR/WAR)

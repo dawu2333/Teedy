@@ -17,7 +17,7 @@ pipeline {
         stage('Build') {
             steps {
                 // 先跳过测试进行打包，加快构建速度
-                bat 'mvn clean package -DskipTests'
+                bat 'mvn clean package -DskipTests -U'
             }
         }
 

@@ -38,7 +38,7 @@ public class TestMimeTypeUtil extends BaseTest {
         Assert.assertEquals(MimeType.TEXT_PLAIN, MimeTypeUtil.guessMimeType(path, FILE_TXT));
 
         // Detect CSV files
-        // path = Paths.get(getResource(FILE_CSV).toURI());
+        path = Paths.get(getResource(FILE_CSV).toURI());
         // Assert.assertEquals(MimeType.TEXT_CSV, MimeTypeUtil.guessMimeType(path, FILE_CSV));
         // 修改为兼容两种情况的判断，适配 Windows 系统
         String actualMimeType = MimeTypeUtil.guessMimeType(path, FILE_CSV);

@@ -14,21 +14,15 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        // 将 Build 和 PMD Analysis 合并
+        stage('Build & PMD') {
             steps {
-                // 先跳过测试进行打包，加快构建速度
-                bat 'mvn clean package -DskipTests -U'
-            }
-        }
-
-        stage('PMD Analysis') {
-            steps {
-                // 执行 PMD 代码检查
-                bat 'mvn pmd:pmd -U'  // 加上 -U
+                // 在打包的同时执行 PMD 检查
+                bat 'mvn clean package pmd:pmd -DskipTests -U'
             }
             post {
                 always {
-                    // 记录 PMD 警告报告 (需要 Jenkins 安装 Warnings NG 插件)
+                    // 记录 PMD 警告报告
                     recordIssues tools: [pmdParser(pattern: '**/target/pmd.xml')]
                 }
             }

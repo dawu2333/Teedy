@@ -85,6 +85,19 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>3.21.0</version>
+        <configuration>
+            <!-- 指定生成报告的格式，这里选择 xml 以便 Jenkins 解析 -->
+            <format>xml</format>
+            <!-- 设置目标 JDK 版本，与你的项目保持一致 -->
+            <targetJdk>21</targetJdk>
+            <!-- 是否打印详细日志 -->
+            <verbose>true</verbose>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>${org.apache.maven.plugins.maven-antrun-plugin.version}</version>
       </plugin>

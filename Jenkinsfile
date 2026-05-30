@@ -14,16 +14,18 @@ pipeline {
             }
         }
 
-        // 将 Build 和 PMD Analysis 合并
-        stage('Build & PMD') {
+        // 将 Build、PMD 和 JavaDoc 全部合并到一个 Maven 反应堆中
+        stage('Build & PMD & JavaDoc') {
             steps {
-                // 在打包的同时执行 PMD 检查
-                bat 'mvn clean package pmd:pmd -DskipTests -U'
+                // 一条命令搞定打包、代码检查、文档生成
+                bat 'mvn clean package pmd:pmd javadoc:javadoc -DskipTests -Ddoclint=none -U'
             }
             post {
                 always {
                     // 记录 PMD 警告报告
                     recordIssues tools: [pmdParser(pattern: '**/target/pmd.xml')]
+                    // 归档生成的 JavaDoc 文档 (HTML格式)
+                    archiveArtifacts artifacts: '**/target/site/apidocs/**', allowEmptyArchive: true
                 }
             }
         }
@@ -31,7 +33,7 @@ pipeline {
         stage('Test') {
             steps {
                 // 运行单元测试
-                bat 'mvn test -U'  // 加上 -U
+                bat 'mvn test -U'
             }
             post {
                 always {
@@ -39,20 +41,6 @@ pipeline {
                     junit '**/target/surefire-reports/*.xml'
                     // 归档测试报告 (HTML格式，如果有的话)
                     archiveArtifacts artifacts: '**/target/surefire-reports/*.html', allowEmptyArchive: true
-                }
-            }
-        }
-
-        stage('Generate JavaDoc') {
-            steps {
-                // 生成 JavaDoc 项目文档
-                // bat 'mvn javadoc:javadoc -U'  // 加上 -U
-                bat 'mvn javadoc:javadoc -Ddoclint=none -U'
-            }
-            post {
-                always {
-                    // 归档生成的 JavaDoc 文档 (HTML格式)
-                    archiveArtifacts artifacts: '**/target/site/apidocs/**', allowEmptyArchive: true
                 }
             }
         }

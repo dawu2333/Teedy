@@ -24,7 +24,7 @@ pipeline {
         stage('PMD Analysis') {
             steps {
                 // 执行 PMD 代码检查
-                bat 'mvn pmd:pmd'
+                bat 'mvn pmd:pmd -U'  // 加上 -U
             }
             post {
                 always {
@@ -37,7 +37,7 @@ pipeline {
         stage('Test') {
             steps {
                 // 运行单元测试
-                bat 'mvn test'
+                bat 'mvn test -U'  // 加上 -U
             }
             post {
                 always {
@@ -52,7 +52,7 @@ pipeline {
         stage('Generate JavaDoc') {
             steps {
                 // 生成 JavaDoc 项目文档
-                bat 'mvn javadoc:javadoc'
+                bat 'mvn javadoc:javadoc -U'  // 加上 -U
             }
             post {
                 always {

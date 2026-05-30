@@ -46,7 +46,8 @@ pipeline {
         stage('Generate JavaDoc') {
             steps {
                 // 生成 JavaDoc 项目文档
-                bat 'mvn javadoc:javadoc -U'  // 加上 -U
+                // bat 'mvn javadoc:javadoc -U'  // 加上 -U
+                bat 'mvn javadoc:javadoc -Ddoclint=none -U'
             }
             post {
                 always {

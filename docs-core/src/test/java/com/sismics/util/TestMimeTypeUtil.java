@@ -66,8 +66,8 @@ public class TestMimeTypeUtil extends BaseTest {
 
         // Detect ZIP files
         path = Paths.get(getResource(FILE_ZIP).toURI());
-        // 修改为兼容两种情况的判断，适配 Windows 系统
-        String actualMimeType = MimeTypeUtil.guessMimeType(path, FILE_ZIP);
+        // 正确：直接复用上面已经定义过的变量
+        actualMimeType = MimeTypeUtil.guessMimeType(path, FILE_ZIP);
         Assert.assertTrue("MIME type should be zip or x-zip-compressed", 
             actualMimeType.equals(MimeType.APPLICATION_ZIP) || actualMimeType.equals("application/x-zip-compressed"));
 
